@@ -1,0 +1,250 @@
+#+Title: JavaScript PHP Extensions
+#+Author: Stefan Siegl
+#+Email: stesie@brokenpipe.de
+#+Date: 2016-09-17
+
+#+OPTIONS: reveal_center:t reveal_progress:t reveal_history:t reveal_control:t
+#+OPTIONS: reveal_rolling_links:t reveal_keyboard:t reveal_overview:t num:nil
+#+OPTIONS: toc:0
+#+OPTIONS: reveal_slide_number:nil
+#+OPTIONS: reveal_title_slide:"<h1>%t</h1><h2>%a</h2><p>%e</p>"
+#+OPTIONS: reveal_width:1200 reveal_height:800
+#+OPTIONS: ^:nil
+#+REVEAL_MARGIN: 0.1
+#+REVEAL_MIN_SCALE: 0.5
+#+REVEAL_MAX_SCALE: 2.5
+#+REVEAL_THEME: white
+#+REVEAL_HLEVEL: 1
+#+REVEAL_PLUGINS: (markdown notes)
+#+REVEAL_EXTRA_CSS: custom.css
+
+* Warum will man das?
+
+** Customizing
+
+- Einsatz bei Tradebyte in der Import Pipeline, als Adapter zwischen Parser und interner Import API
+- customized Exporte likewise
+- zunächst hatten wir über *Domain Specific Language* diskutiert
+- eigene Skriptsprache entwickeln macht vermutlich Spaß aber ist out of scope :)
+
+** Code re-use
+
+- evtl. besteht schon Code in JavaScript
+- ... der einfach nur in PHP mit verwendet werden soll
+- z.B. Validierungslogik, die mit Client geteilt wird
+
+** Server-side rendering
+
+[[./images/react-php.png]]
+
+** rapps.io
+
+[[./images/rappsio.png]]
+
+* Projekte
+
+** php-spidermonkey
+
+- http://pecl.php.net/package/spidermonkey
+- embeds Mozilla's Spidermonkey with PHP
+- gestartet von Christophe Robin in 2009
+- letzte Release 2012
+- PHP5 only
+
+** php-javascript
+
+- http://www.php-javascript.com/
+- by copernica
+- ... auf Basis von deren *php-cpp*
+- seit März 2015
+- selbst aber noch nicht verwendet
+
+** php-v8js
+
+- http://pecl.php.net/package/v8js
+- embeds Google's V8
+- relativ highlevel, opinionated
+- erste Release 2010 von Jani Taskinen
+- selbst, contributor seit Mitte 2013, maintainer seit Mai 2015
+- branches für PHP5 und PHP7
+
+** php-v8
+
+- https://github.com/pinepain/php-v8
+- von Bogdan Padalko, seit etwa Juli 2016
+- low-level integration von Google's V8
+- PHP7 only
+
+* Ausprobieren
+
+- php-spidermonkey, php-v8js und php-v8 sind in Nix(OS)
+- php-v8js in homebrew
+- Heroku Custom Repo
+- Windows DLLs für PHP7 :)
+
+* V8Js
+
+** Hello World
+
+#+BEGIN_SRC php
+$v8js = new V8Js();
+$v8js->executeString("print('Hello World\\n');");
+#+END_SRC
+
+** Script Exceptions
+
+#+BEGIN_SRC php
+try {
+  $v8js->executeString("{]]");
+} catch(V8JsScriptException $e) {
+  echo $e->getMessage();
+}
+
+// --> V8Js::compileString():1: SyntaxError: Unexpected token ]
+#+END_SRC
+
+** Funktion hin
+
+#+BEGIN_SRC php
+$v8js->sayHello = function() {
+  echo "Hello World\n"; 
+};
+
+$v8js->executeString(' PHP.sayHello(); ');
+// --> Hello World
+#+END_SRC
+
+** Funktion mit Argumenten
+
+#+BEGIN_SRC php
+$v8js->sayHello = function(string $name = "World") {
+  printf("Hello %s\n", $name);
+};
+
+$v8js->executeString(' PHP.sayHello(); ');
+// --> Hello World
+
+$v8js->executeString(' PHP.sayHello("Stefan"); ');
+// --> Hello Stefan
+#+END_SRC
+
+** Funktion zurück
+
+#+BEGIN_SRC php
+$sayHello = $v8js->executeString(' (function(name) { print("Hello " + name + "\\n"); }) ');
+
+$sayHello("Stefan");
+// --> Hello Stefan
+#+END_SRC
+
+** Objekte hin
+
+#+BEGIN_SRC php
+class Greeter
+{
+  private $name;
+
+  public function setName(string $name)
+  {
+    $this->name = $name;
+  }
+
+  public function sayHello()
+  {
+    printf("Hello %s\n", $this->name);
+  }
+} 
+$v8js->greeter = new Greeter();
+$v8js->executeString( <<<EOJS
+  PHP.greeter.setName('Stefan');
+  PHP.greeter.sayHello();
+EOJS
+);
+// --> Hello Stefan
+#+END_SRC
+
+** Objekte zurück
+
+#+BEGIN_SRC php
+$obj = $v8js->executeString('({ foo: 23, bar: 42 })');
+print_r($obj);
+
+/* -->
+ * V8Object Object
+ * (
+ *     [foo] => 23
+ *     [bar] => 42
+ * )
+ */
+#+END_SRC
+
+** Sandboxing
+
+#+BEGIN_SRC php
+$v8js->setTimeLimit(500);
+$v8js->setMemoryLimit(20E6);
+#+END_SRC
+
+Problem: JavaScript kann große Mengen an PHP zurück geben, bzw. an PHP Objekte
+anhängen und so auch PHP Speicher verbraten.
+
+** Heap Snapshots
+
+Snapshot erstellen: 
+
+#+BEGIN_SRC php
+$src = file_get_contents('build/react-bundle.js');
+$src .= file_get_contents('react-app.js');
+$snapshot = V8Js::createSnapshot($src);
+
+// cache $snapshot in $storage
+#+END_SRC
+
+... und in Sekundenbruchteilen verwenden
+
+#+BEGIN_SRC php
+// fetch $snapshot from $storage
+$v8 = new V8Js('myapp', [], [], true, $snapshot)
+#+END_SRC
+
+** Generatoren
+
+ES6 und PHP 5.5 haben beide Generatoren eingeführt, na dann :)
+
+#+BEGIN_SRC php
+$jsGenerator = $v8->executeString( <<<EOJS
+  (function*() {
+    yield 1;
+    yield 2; 
+    yield 3; 
+  })
+EOJS
+);
+
+foreach($jsGenerator() as $i) {
+  var_dump($i);
+}
+#+END_SRC
+
+
+** Module Loader
+
+- require(...) module loader
+- ruft Closure in PHP auf, die
+  - JavaScript Source Code für Modul zurückgeben kann
+  - Node.js Style Loader kann nachgebaut werden
+  - (work in progress) PHP Klasseninstanz als Modul zurückgeben
+
+* Ideen
+
+** Angular2 Universal
+
+- funktioniert in Node.js schon
+- ... in V8Js noch nicht :-(
+- hmm, Angular2 Services in PHP schreiben?  :)
+
+** V8Js in php-v8 portieren
+
+weil's gehen sollte :)
+
+

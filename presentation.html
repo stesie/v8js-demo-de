@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>JavaScript PHP Extensions</title>
+<meta name="author" content="(Stefan Siegl)"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="./reveal.js/css/reveal.css"/>
+
+<link rel="stylesheet" href="./reveal.js/css/theme/white.css" id="theme"/>
+
+<link rel="stylesheet" href="custom.css"/>
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide"><h1>JavaScript PHP Extensions</h1><h2>Stefan Siegl</h2><p><a href="mailto:stesie@brokenpipe.de">stesie@brokenpipe.de</a></p>
+</section>
+
+<section>
+<section id="slide-orgheadline5">
+<h2 id="orgheadline5">Warum will man das?</h2>
+<div class="outline-text-2" id="text-orgheadline5">
+</div></section>
+<section id="slide-orgheadline1">
+<h3 id="orgheadline1">Customizing</h3>
+<ul>
+<li>Einsatz bei Tradebyte in der Import Pipeline, als Adapter zwischen Parser und interner Import API</li>
+<li>customized Exporte likewise</li>
+<li>zunächst hatten wir über <b>Domain Specific Language</b> diskutiert</li>
+<li>eigene Skriptsprache entwickeln macht vermutlich Spaß aber ist out of scope :)</li>
+
+</ul>
+
+</section>
+<section id="slide-orgheadline2">
+<h3 id="orgheadline2">Code re-use</h3>
+<ul>
+<li>evtl. besteht schon Code in JavaScript</li>
+<li>&#x2026; der einfach nur in PHP mit verwendet werden soll</li>
+<li>z.B. Validierungslogik, die mit Client geteilt wird</li>
+
+</ul>
+
+</section>
+<section id="slide-orgheadline3">
+<h3 id="orgheadline3">Server-side rendering</h3>
+
+<div class="figure">
+<p><img src="./images/react-php.png" alt="react-php.png" />
+</p>
+</div>
+
+</section>
+<section id="slide-orgheadline4">
+<h3 id="orgheadline4">rapps.io</h3>
+
+<div class="figure">
+<p><img src="./images/rappsio.png" alt="rappsio.png" />
+</p>
+</div>
+
+</section>
+</section>
+<section>
+<section id="slide-orgheadline10">
+<h2 id="orgheadline10">Projekte</h2>
+<div class="outline-text-2" id="text-orgheadline10">
+</div></section>
+<section id="slide-orgheadline6">
+<h3 id="orgheadline6">php-spidermonkey</h3>
+<ul>
+<li><a href="http://pecl.php.net/package/spidermonkey">http://pecl.php.net/package/spidermonkey</a></li>
+<li>embeds Mozilla's Spidermonkey with PHP</li>
+<li>gestartet von Christophe Robin in 2009</li>
+<li>letzte Release 2012</li>
+<li>PHP5 only</li>
+
+</ul>
+
+</section>
+<section id="slide-orgheadline7">
+<h3 id="orgheadline7">php-javascript</h3>
+<ul>
+<li><a href="http://www.php-javascript.com/">http://www.php-javascript.com/</a></li>
+<li>by copernica</li>
+<li>&#x2026; auf Basis von deren <b>php-cpp</b></li>
+<li>seit März 2015</li>
+<li>selbst aber noch nicht verwendet</li>
+
+</ul>
+
+</section>
+<section id="slide-orgheadline8">
+<h3 id="orgheadline8">php-v8js</h3>
+<ul>
+<li><a href="http://pecl.php.net/package/v8js">http://pecl.php.net/package/v8js</a></li>
+<li>embeds Google's V8</li>
+<li>relativ highlevel, opinionated</li>
+<li>erste Release 2010 von Jani Taskinen</li>
+<li>selbst, contributor seit Mitte 2013, maintainer seit Mai 2015</li>
+<li>branches für PHP5 und PHP7</li>
+
+</ul>
+
+</section>
+<section id="slide-orgheadline9">
+<h3 id="orgheadline9">php-v8</h3>
+<ul>
+<li><a href="https://github.com/pinepain/php-v8">https://github.com/pinepain/php-v8</a></li>
+<li>von Bogdan Padalko, seit etwa Juli 2016</li>
+<li>low-level integration von Google's V8</li>
+<li>PHP7 only</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgheadline11">
+<h2 id="orgheadline11">Ausprobieren</h2>
+<ul>
+<li>php-spidermonkey, php-v8js und php-v8 sind in Nix(OS)</li>
+<li>php-v8js in homebrew</li>
+<li>Heroku Custom Repo</li>
+<li>Windows DLLs für PHP7 :)</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgheadline23">
+<h2 id="orgheadline23">V8Js</h2>
+<div class="outline-text-2" id="text-orgheadline23">
+</div></section>
+<section id="slide-orgheadline12">
+<h3 id="orgheadline12">Hello World</h3>
+<div class="org-src-container">
+
+<pre  class="src src-php"><span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">v8js</span> = <span style="color: #4f97d7; font-weight: bold;">new</span> <span style="color: #ce537a; font-weight: bold;">V8Js</span><span style="color: #4f97d7;">()</span>;
+<span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">v8js</span>-&gt;<span style="color: #b2b2b2; ">executeString</span><span style="color: #4f97d7;">(</span><span style="color: #2d9574;">"print('Hello World\\n');"</span><span style="color: #4f97d7;">)</span>;
+</pre>
+</div>
+
+</section>
+<section id="slide-orgheadline13">
+<h3 id="orgheadline13">Script Exceptions</h3>
+<div class="org-src-container">
+
+<pre  class="src src-php"><span style="color: #4f97d7; font-weight: bold;">try</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">v8js</span>-&gt;<span style="color: #b2b2b2; ">executeString</span><span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">"{]]"</span><span style="color: #bc6ec5;">)</span>;
+<span style="color: #4f97d7;">}</span> <span style="color: #4f97d7; font-weight: bold;">catch</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">V8JsScriptException</span> <span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">e</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #4f97d7; font-weight: bold;">echo</span> <span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">e</span>-&gt;<span style="color: #b2b2b2; ">getMessage</span><span style="color: #bc6ec5;">()</span>;
+<span style="color: #4f97d7;">}</span>
+
+<span style="color: #2aa1ae; ">// </span><span style="color: #2aa1ae; ">--&gt; V8Js::compileString():1: SyntaxError: Unexpected token ]</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-orgheadline14">
+<h3 id="orgheadline14">Funktion hin</h3>
+<div class="org-src-container">
+
+<pre  class="src src-php"><span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">v8js</span>-&gt;<span style="color: #7590db;">sayHello</span> = <span style="color: #4f97d7; font-weight: bold;">function</span><span style="color: #4f97d7;">()</span> <span style="color: #4f97d7;">{</span>
+  <span style="color: #4f97d7; font-weight: bold;">echo</span> <span style="color: #2d9574;">"Hello World\n"</span>; 
+<span style="color: #4f97d7;">}</span>;
+
+<span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">v8js</span>-&gt;<span style="color: #b2b2b2; ">executeString</span><span style="color: #4f97d7;">(</span><span style="color: #2d9574;">' PHP.sayHello(); '</span><span style="color: #4f97d7;">)</span>;
+<span style="color: #2aa1ae; ">// </span><span style="color: #2aa1ae; ">--&gt; Hello World</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-orgheadline15">
+<h3 id="orgheadline15">Funktion mit Argumenten</h3>
+<div class="org-src-container">
+
+<pre  class="src src-php"><span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">v8js</span>-&gt;<span style="color: #7590db;">sayHello</span> = <span style="color: #4f97d7; font-weight: bold;">function</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">string</span> <span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">name</span> = <span style="color: #2d9574;">"World"</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
+  printf<span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">"Hello %s\n"</span>, <span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">name</span><span style="color: #bc6ec5;">)</span>;
+<span style="color: #4f97d7;">}</span>;
+
+<span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">v8js</span>-&gt;<span style="color: #b2b2b2; ">executeString</span><span style="color: #4f97d7;">(</span><span style="color: #2d9574;">' PHP.sayHello(); '</span><span style="color: #4f97d7;">)</span>;
+<span style="color: #2aa1ae; ">// </span><span style="color: #2aa1ae; ">--&gt; Hello World</span>
+
+<span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">v8js</span>-&gt;<span style="color: #b2b2b2; ">executeString</span><span style="color: #4f97d7;">(</span><span style="color: #2d9574;">' PHP.sayHello("Stefan"); '</span><span style="color: #4f97d7;">)</span>;
+<span style="color: #2aa1ae; ">// </span><span style="color: #2aa1ae; ">--&gt; Hello Stefan</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-orgheadline16">
+<h3 id="orgheadline16">Funktion zurück</h3>
+<div class="org-src-container">
+
+<pre  class="src src-php"><span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">sayHello</span> = <span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">v8js</span>-&gt;<span style="color: #b2b2b2; ">executeString</span><span style="color: #4f97d7;">(</span><span style="color: #2d9574;">' (function(name) { print("Hello " + name + "\\n"); }) '</span><span style="color: #4f97d7;">)</span>;
+
+<span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">sayHello</span><span style="color: #4f97d7;">(</span><span style="color: #2d9574;">"Stefan"</span><span style="color: #4f97d7;">)</span>;
+<span style="color: #2aa1ae; ">// </span><span style="color: #2aa1ae; ">--&gt; Hello Stefan</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-orgheadline17">
+<h3 id="orgheadline17">Objekte hin</h3>
+<div class="org-src-container">
+
+<pre  class="src src-php"><span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">Greeter</span>
+<span style="color: #4f97d7;">{</span>
+  <span style="color: #4f97d7; font-weight: bold;">private</span> <span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">name</span>;
+
+  <span style="color: #4f97d7; font-weight: bold;">public</span> <span style="color: #4f97d7; font-weight: bold;">function</span> <span style="color: #bc6ec5; font-weight: bold;">setName</span><span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">string</span> <span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">name</span><span style="color: #bc6ec5;">)</span>
+  <span style="color: #bc6ec5;">{</span>
+    <span style="color: #b2b2b2; ">$</span><span style="color: #a45bad;">this</span>-&gt;<span style="color: #7590db;">name</span> = <span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">name</span>;
+  <span style="color: #bc6ec5;">}</span>
+
+  <span style="color: #4f97d7; font-weight: bold;">public</span> <span style="color: #4f97d7; font-weight: bold;">function</span> <span style="color: #bc6ec5; font-weight: bold;">sayHello</span><span style="color: #bc6ec5;">()</span>
+  <span style="color: #bc6ec5;">{</span>
+    printf<span style="color: #2d9574;">(</span><span style="color: #2d9574;">"Hello %s\n"</span>, <span style="color: #b2b2b2; ">$</span><span style="color: #a45bad;">this</span>-&gt;<span style="color: #7590db;">name</span><span style="color: #2d9574;">)</span>;
+  <span style="color: #bc6ec5;">}</span>
+<span style="color: #4f97d7;">}</span> 
+<span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">v8js</span>-&gt;<span style="color: #7590db;">greeter</span> = <span style="color: #4f97d7; font-weight: bold;">new</span> <span style="color: #ce537a; font-weight: bold;">Greeter</span><span style="color: #4f97d7;">()</span>;
+<span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">v8js</span>-&gt;<span style="color: #b2b2b2; ">executeString</span><span style="color: #4f97d7;">(</span> <span style="color: #2d9574;">&lt;&lt;&lt;EOJS</span>
+<span style="color: #2d9574;">  PHP.greeter.setName('Stefan');</span>
+<span style="color: #2d9574;">  PHP.greeter.sayHello();</span>
+<span style="color: #2d9574;">EOJS</span>
+<span style="color: #4f97d7;">)</span>;
+<span style="color: #2aa1ae; ">// </span><span style="color: #2aa1ae; ">--&gt; Hello Stefan</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-orgheadline18">
+<h3 id="orgheadline18">Objekte zurück</h3>
+<div class="org-src-container">
+
+<pre  class="src src-php"><span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">obj</span> = <span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">v8js</span>-&gt;<span style="color: #b2b2b2; ">executeString</span><span style="color: #4f97d7;">(</span><span style="color: #2d9574;">'({ foo: 23, bar: 42 })'</span><span style="color: #4f97d7;">)</span>;
+print_r<span style="color: #4f97d7;">(</span><span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">obj</span><span style="color: #4f97d7;">)</span>;
+
+<span style="color: #2aa1ae; ">/* </span><span style="color: #2aa1ae; ">--&gt;</span>
+<span style="color: #2aa1ae; "> * V8Object Object</span>
+<span style="color: #2aa1ae; "> * (</span>
+<span style="color: #2aa1ae; "> *     [foo] =&gt; 23</span>
+<span style="color: #2aa1ae; "> *     [bar] =&gt; 42</span>
+<span style="color: #2aa1ae; "> * )</span>
+<span style="color: #2aa1ae; "> */</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-orgheadline19">
+<h3 id="orgheadline19">Sandboxing</h3>
+<div class="org-src-container">
+
+<pre  class="src src-php"><span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">v8js</span>-&gt;<span style="color: #b2b2b2; ">setTimeLimit</span><span style="color: #4f97d7;">(</span><span style="color: #a45bad;">500</span><span style="color: #4f97d7;">)</span>;
+<span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">v8js</span>-&gt;<span style="color: #b2b2b2; ">setMemoryLimit</span><span style="color: #4f97d7;">(</span><span style="color: #a45bad;">20E6</span><span style="color: #4f97d7;">)</span>;
+</pre>
+</div>
+
+<p>
+Problem: JavaScript kann große Mengen an PHP zurück geben, bzw. an PHP Objekte
+anhängen und so auch PHP Speicher verbraten.
+</p>
+
+</section>
+<section id="slide-orgheadline20">
+<h3 id="orgheadline20">Heap Snapshots</h3>
+<p>
+Snapshot erstellen: 
+</p>
+
+<div class="org-src-container">
+
+<pre  class="src src-php"><span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">src</span> = file_get_contents<span style="color: #4f97d7;">(</span><span style="color: #2d9574;">'build/react-bundle.js'</span><span style="color: #4f97d7;">)</span>;
+<span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">src</span> .= file_get_contents<span style="color: #4f97d7;">(</span><span style="color: #2d9574;">'react-app.js'</span><span style="color: #4f97d7;">)</span>;
+<span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">snapshot</span> = <span style="color: #a45bad;">V8Js</span>::createSnapshot<span style="color: #4f97d7;">(</span><span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">src</span><span style="color: #4f97d7;">)</span>;
+
+<span style="color: #2aa1ae; ">// </span><span style="color: #2aa1ae; ">cache $snapshot in $storage</span>
+</pre>
+</div>
+
+<p>
+&#x2026; und in Sekundenbruchteilen verwenden
+</p>
+
+<div class="org-src-container">
+
+<pre  class="src src-php"><span style="color: #2aa1ae; ">// </span><span style="color: #2aa1ae; ">fetch $snapshot from $storage</span>
+<span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">v8</span> = <span style="color: #4f97d7; font-weight: bold;">new</span> <span style="color: #ce537a; font-weight: bold;">V8Js</span><span style="color: #4f97d7;">(</span><span style="color: #2d9574;">'myapp'</span>, <span style="color: #bc6ec5;">[]</span>, <span style="color: #bc6ec5;">[]</span>, <span style="color: #a45bad;">true</span>, <span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">snapshot</span><span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-orgheadline21">
+<h3 id="orgheadline21">Generatoren</h3>
+<p>
+ES6 und PHP 5.5 haben beide Generatoren eingeführt, na dann :)
+</p>
+
+<div class="org-src-container">
+
+<pre  class="src src-php"><span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">jsGenerator</span> = <span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">v8</span>-&gt;<span style="color: #b2b2b2; ">executeString</span><span style="color: #4f97d7;">(</span> <span style="color: #2d9574;">&lt;&lt;&lt;EOJS</span>
+<span style="color: #2d9574;">  (function*() {</span>
+<span style="color: #2d9574;">    yield 1;</span>
+<span style="color: #2d9574;">    yield 2; </span>
+<span style="color: #2d9574;">    yield 3; </span>
+<span style="color: #2d9574;">  })</span>
+<span style="color: #2d9574;">EOJS</span>
+<span style="color: #4f97d7;">)</span>;
+
+<span style="color: #4f97d7; font-weight: bold;">foreach</span><span style="color: #4f97d7;">(</span><span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">jsGenerator</span><span style="color: #bc6ec5;">()</span> <span style="color: #4f97d7; font-weight: bold;">as</span> <span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">i</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
+  var_dump<span style="color: #bc6ec5;">(</span><span style="color: #b2b2b2; ">$</span><span style="color: #7590db;">i</span><span style="color: #bc6ec5;">)</span>;
+<span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+
+
+</section>
+<section id="slide-orgheadline22">
+<h3 id="orgheadline22">Module Loader</h3>
+<ul>
+<li>require(&#x2026;) module loader</li>
+<li>ruft Closure in PHP auf, die
+<ul>
+<li>JavaScript Source Code für Modul zurückgeben kann</li>
+<li>Node.js Style Loader kann nachgebaut werden</li>
+<li>(work in progress) PHP Klasseninstanz als Modul zurückgeben</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgheadline26">
+<h2 id="orgheadline26">Ideen</h2>
+<div class="outline-text-2" id="text-orgheadline26">
+</div></section>
+<section id="slide-orgheadline24">
+<h3 id="orgheadline24">Angular2 Universal</h3>
+<ul>
+<li>funktioniert in Node.js schon</li>
+<li>&#x2026; in V8Js noch nicht :-(</li>
+<li>hmm, Angular2 Services in PHP schreiben?  :)</li>
+
+</ul>
+
+</section>
+<section id="slide-orgheadline25">
+<h3 id="orgheadline25">V8Js in php-v8 portieren</h3>
+<p>
+weil's gehen sollte :)
+</p>
+</section>
+</section>
+</div>
+</div>
+<script src="./reveal.js/lib/js/head.min.js"></script>
+<script src="./reveal.js/js/reveal.js"></script>
+
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: true,
+center: true,
+slideNumber: false,
+rollingLinks: true,
+keyboard: true,
+overview: true,
+width: 1200,
+height: 800,
+margin: 0.10,
+minScale: 0.50,
+maxScale: 2.50,
+
+theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+transitionSpeed: 'default',
+multiplex: {
+    secret: '', // null if client
+    id: '', // id, obtained from socket.io server
+    url: '' // Location of socket.io server
+},
+
+// Optional libraries used to extend on reveal.js
+dependencies: [
+ { src: './reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: './reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: './reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }]
+});
+</script>
+</body>
+</html>
